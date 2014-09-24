@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head lang="zh">
+    <meta charset="UTF-8">
+    <title>基于开源软件的WebGIS地图应用</title>
+
+    <!-- 引入leaflet的css和js文件 -->
+    <link rel="stylesheet" href="../scripts/css/leaflet.css" />
+    <link rel="stylesheet" href="../scripts/css/leaflet.draw.css" />
+    <link rel="stylesheet" href="../scripts/css/L.Control.Pan.css" />
+    <link rel="stylesheet" href="../scripts/css/L.Control.Zoomslider.css" />
+    <link rel="stylesheet" href="../scripts/css/Control.MiniMap.css" />
+    <link rel="stylesheet" href="../scripts/css/L.Control.MousePosition.css" />
+    <link rel="stylesheet" href="../scripts/css/font-awesome/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="../scripts/css/menuButton.css"/>
+
+    <script src="../scripts/leaflet.js"></script>
+    <script src="../scripts/leaflet.draw.js"></script>
+    <script src="../scripts/easy-button.js"></script>
+    <script src="../scripts/leaflet.gml.js"></script>
+    <script src="../scripts/leaflet.wfst.js"></script>
+    <script src="../scripts/L.Control.Pan.js"></script>
+    <script src="../scripts/L.Control.Zoomslider.js"></script>
+    <script src="../scripts/jquery-1.11.1.min.js"></script>
+    <script src="../scripts/Control.MiniMap.js"></script>
+    <script src="../scripts/L.Control.MousePosition.js"></script>
+    <script src="../scripts/Bing.js"></script>
+    <script src="../scripts/L.Control.MenuButton.js"></script>
+    <script src="../scripts/layer/layer.min.js"></script>
+
+
+    <style type="text/css">
+        html,body
+        {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #map
+        {
+            height: 100%;
+            width: 100%;
+            position:absolute;
+            top:0;
+            bottom:0;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script type="text/javascript">
+        var layers = {};
+        var BingKey = "AhARYbXRzUHxE7zdTbmnZOiHoa_DK6FdOoq1pFbq6MLiA3qOkMALx7YqmVnjqnBs";
+
+        <!--地图初始化-->
+        var map = L.map('map',{
+            center: [39, 116],
+            zoomControl:false,
+            panControl:true,
+            zoomsliderControl: true
+        }).setView([40, 108], 5);
+
+        <!--创建菜单按钮-->
+       var button1 = L.menuButton('fa-bullseye menu-icon-red',function(){
+           $.layer({
+               type: 2,   //0-4的选择,
+               title: '灾害地点定位',
+               maxmin: true,
+               border: [5, 0.3, '#000'],
+               closeBtn: [0,true],
+               shade: [0],
+               shadeClose: true,
+               move: '.xubox_title',
+               area: ['460px', '280px'],
+               iframe: {
+                   src: 'disasterLocation.html'
+               }
+           });
+       },'灾害地点定位',map);
+
+        var button2 = L.menuButton('fa-image',function(){
+        },'应急资源分布',map);
+
+        var button3 = L.menuButton('fa-info',function(){
+        },'区域详细信息',map);
+
+        var button4 = L.menuButton('fa-calculator',function(){
+        },'物资需求分析',map);
+
+        var button5 = L.menuButton('fa-phone',function(){
+        },'应急调度',map);
+
+        var button6 = L.menuButton('fa-road',function(){
+        },'救援路径分析',map);
+
+        var button7 = L.menuButton('fa-exchange',function(){
+        },'态势标绘',map);
+
+        var button8 = L.menuButton('fa-paint-brush',function(){
+        },'自由标绘',map);
+
+        var button9 = L.menuButton('fa-map-marker',function(){
+        },'定位',map);
+
+        var tileMapUrl = 'http://{s}.mapabc.com/mapabc/maptile?&x={x}&y={y}&z={z}';
+        //var tileMapUrl = 'http://map.ctrack.com.cn/UserMapSvr/UM_Maping?version=1.0&type=chart&x={x}&y={y}&z={z}'; //另一个在线底图
+        var minZoom = 1, maxZoom = 14;
+        var attribution = '&copy; <a href="http://192.168.1.211/jfzx/">交付中心</a>'
+
+        <!--设置瓦片层-->
+        layers.base = L.tileLayer(tileMapUrl, {
+            subdomains: ["emap1", "emap2", "emap3"],
+            attribution: attribution,
+            maxZoom: maxZoom,
+            minZoom: minZoom,
+            noWrap: true
+         }).addTo(map);
+
+        <!--设置Bing卫星层-->
+        //layers.satelliteBing = new L.BingLayer("AhARYbXRzUHxE7zdTbmnZOiHoa_DK6FdOoq1pFbq6MLiA3qOkMALx7YqmVnjqnBs").addTo(map); //自己的key
+        layers.satelliteBing = new L.BingLayer(BingKey,{
+            type: "Aerial"
+        }); //在这里如果添加.addTo(map) 会导致在初始化的时候，最后一个图层被选中
+
+        layers.satelliteBingWithLables = new L.BingLayer(BingKey,{
+            type: "AerialWithLabels"
+        }); //同上
+
+        /* 这部分由于wfs-t插件针对GeoServer服务器开发，所以暂时不使用
+        <!--通过leaflet-wfs-t插件读取wfs服务-->
+        <!--实际通过leaflet-wfs-t插件生成的图层就是GeoJSON层-->
+       layers.bound = L.wfst(null,{
+            // Required
+            url : '/cgi-bin/mapserv.exe?map=mapserver/mapserver_china.map&service=wfs&request=getfeature&version=1.0.0&maxfeatures=50&typename=provinces_simplify',
+            featureNS : 'Test',
+            featureType : 'provinces_simplify',
+            primaryKeyField: 'Code'
+        }).addTo(map);*/
+
+        <!--通过Ajax手工访问wfs服务-->
+        $.ajax({
+            url: "/cgi-bin/mapserv.exe?map=mapserver/mapserver_china.map&service=wfs&request=getfeature&version=1.0.0&maxfeatures=50&typename=provinces_simplify&outputformat=application/json",
+            dataType:"json",
+            success: function(data){
+                layers.provinceBound = L.geoJson(data,{
+                    onEachFeature: function(feature,layer){
+                        layer.bindPopup('<h2>' + feature.properties.Name_CHN + '</h2>' + feature.properties.Area);
+                    },
+                    style: function (feature) {
+                        return {color: 'gray'}
+                    }
+                }).addTo(map);
+            }
+        });
+
+       <!--创建鹰眼地图-->
+        layers.minimap = L.tileLayer(tileMapUrl, {
+            subdomains: ["emap1", "emap2", "emap3"],
+            maxZoom: maxZoom,
+            minZoom: minZoom
+        });
+       var miniMap = new L.Control.MiniMap(layers.minimap,{
+           toggleDisplay: true
+       }).addTo(map);
+
+        <!--创建layerGroup-->
+        var baseLayers = {
+            "行政区划地图": layers.base,
+            "卫星影像图": layers.satelliteBing,
+            "卫星影像图+标注": layers.satelliteBingWithLables
+        };
+
+        L.control.layers(baseLayers,null,{
+            collapsed: true,
+            position: "bottomright"
+        }).addTo(map);
+
+        <!--添加比例尺-->
+        L.control.scale({
+            maxWidth: 200,
+            imperial: false
+        }).addTo(map);
+
+        <!--添加鼠标坐标-->
+        L.control.mousePosition({
+            emptyString: '',
+            prefix: '经纬度：',
+            lngFirst: true
+        }).addTo(map);
+
+        //初始化FeatureGroup来存储可编辑的层
+        var drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+
+        //初始化绘画控制，并将它增加到上面的可编辑层中
+        var drawControl = new L.Control.Draw({
+            draw: false,
+            edit:{
+                featureGroup : drawnItems
+            }
+        }).addTo(map);
+
+        //当绘画被创建后，执行的方法，将其添加到层中
+        map.on('draw:created', function(e) {
+            drawnItems.addLayer(e.layer);
+        });
+
+        /*
+        <!--增加一个marker-->
+        var marker = L.marker([30,118]).addTo(map);
+
+        marker.bindPopup("这是一个弹出窗").openPopup();
+        */
+
+       /*地图点击事件
+
+        var popup = L.popup();
+
+        function onMapClick(e) {
+            popup
+                    .setLatLng(e.latlng)
+                    .setContent("你点击了地图上的：" + e.latlng.toString())
+                    .openOn(map);
+        }
+
+        map.on('click', onMapClick);*/
+
+    </script>
+</body>
+</html>

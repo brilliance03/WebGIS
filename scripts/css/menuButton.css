@@ -1,0 +1,56 @@
+/* 这个样式表参考自leaflet.css，将样式中的menu替换成leaflet，则可找到原文件中对应的样式
+ */
+
+.menu-bar{
+    box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+    border-radius: 4px;
+}
+
+.menu-bar a,
+.menu-bar a:hover {
+    background-color: #fff;
+    width: 26px;
+    height: 26px;
+    line-height: 26px;
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    color: black;
+}
+
+.menu-bar a:hover span{
+    display: inline;
+}
+
+.menu-bar a:hover{
+    width: 126px;
+}
+
+.menu-control {
+    position: relative;
+    z-index: 7;
+    pointer-events: auto;
+    border: 1px solid rgba(255, 255, 255, 0);
+    border-radius: 3px;
+
+}
+
+.menu-text{
+    display: none;
+}
+
+.menu-icon-blue{
+    color: blue;
+}
+
+.menu-icon-red{
+    color: red;
+}
+
+.menu-icon-green{
+    color: green;
+}
+
+.menu-icon-blue{
+    color: green;
+}

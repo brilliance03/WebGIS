@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head lang="zh">
+    <meta charset="UTF-8">
+    <title>灾害地点定位</title>
+
+    <script src="../scripts/jquery-1.11.1.min.js"></script>
+</head>
+<body>
+    <h1>灾害地点定位</h1>
+    <button id="btnTest">测试地图标点</button>
+    <input id="inputTest" value="123123123123"/>
+    <script>
+        //引入父页面的全局变量
+        var L = parent.window.L,  map=parent.window.map, layer = parent.window.layer;
+
+
+        $('#btnTest').on('click',(function(){
+            var popup = L.popup();
+            popup
+                    .setLatLng(['36', '130'])
+                    .setContent("从子页面触发的")
+                    .openOn(map);
+        }));
+
+
+    </script>
+</body>
+</html>
