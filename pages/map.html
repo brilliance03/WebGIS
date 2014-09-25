@@ -150,7 +150,7 @@
                     style: function (feature) {
                         return {color: 'gray'}
                     }
-                }).addTo(map);
+                });
             }
         });
 
@@ -165,13 +165,19 @@
        }).addTo(map);
 
         <!--创建layerGroup-->
+       var provience = L.layerGroup(layers.provinceBound);
+
         var baseLayers = {
-            "行政区划地图": layers.base,
+            "底图": layers.base,
             "卫星影像图": layers.satelliteBing,
             "卫星影像图+标注": layers.satelliteBingWithLables
         };
 
-        L.control.layers(baseLayers,null,{
+        var vectorLayers = {
+            "行政区划": provience
+        }
+
+        L.control.layers(baseLayers,vectorLayers,{
             collapsed: true,
             position: "bottomright"
         }).addTo(map);
