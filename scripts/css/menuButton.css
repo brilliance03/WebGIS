@@ -24,6 +24,7 @@
 
 .menu-bar a:hover{
     width: 126px;
+    box-shadow: 0 1px 6px 3px rgba(0, 153, 255, .5);
 }
 
 .menu-control {
