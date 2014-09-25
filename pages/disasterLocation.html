@@ -5,24 +5,27 @@
     <title>灾害地点定位</title>
 
     <script src="../scripts/jquery-1.11.1.min.js"></script>
+    <script src="../scripts/leaflet.js"></script>
+
 </head>
 <body>
-    <h1>灾害地点定位</h1>
-    <button id="btnTest">测试地图标点</button>
-    <input id="inputTest" value="123123123123"/>
+    <input type="button" id="btnDrawRec" value="在父页面画矩形"/>
+    <input type="button" id="btnDrawCircle" value="在父页面画圆"/>
     <script>
         //引入父页面的全局变量
-        var L = parent.window.L,  map=parent.window.map, layer = parent.window.layer;
+        var map=parent.map, layer = parent.layer;
 
+        $('#btnDrawRec').on('click',function(){
+            var bounds = [[54.559322, -5.767822], [56.1210604, -3.021240]];
 
-        $('#btnTest').on('click',(function(){
-            var popup = L.popup();
-            popup
-                    .setLatLng(['36', '130'])
-                    .setContent("从子页面触发的")
-                    .openOn(map);
-        }));
+            // create an orange rectangle
+            L.rectangle(bounds, {color: "#ff7800", weight: 1}).addTo(map);
 
+        });
+
+        $('#btnDrawCircle').on('click',function(){
+            L.circle([50.5, 30.5], 200000).addTo(map);
+        });
 
     </script>
 </body>

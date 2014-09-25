@@ -14,8 +14,8 @@
     <link rel="stylesheet" href="../scripts/css/font-awesome/css/font-awesome.min.css"/>
     <link rel="stylesheet" href="../scripts/css/menuButton.css"/>
 
-    <script src="../scripts/leaflet.js"></script>
-    <script src="../scripts/leaflet.draw.js"></script>
+    <script src="../scripts/leaflet-src.js"></script>
+    <script src="../scripts/leaflet.draw-src.js"></script>
     <script src="../scripts/easy-button.js"></script>
     <script src="../scripts/leaflet.gml.js"></script>
     <script src="../scripts/leaflet.wfst.js"></script>
@@ -61,50 +61,70 @@
             zoomsliderControl: true
         }).setView([40, 108], 5);
 
+
         <!--创建菜单按钮-->
+       var ifWindowsOpened = {}, bizWindows = {};
        var button1 = L.menuButton('fa-bullseye menu-icon-red',function(){
-           $.layer({
-               type: 2,   //0-4的选择,
-               title: '灾害地点定位',
-               maxmin: true,
-               border: [5, 0.3, '#000'],
-               closeBtn: [0,true],
-               shade: [0],
-               shadeClose: true,
-               move: '.xubox_title',
-               area: ['460px', '280px'],
-               iframe: {
-                   src: 'disasterLocation.html'
-               }
-           });
+           map.removeLayer(layers.provinceBound);
+           if(!ifWindowsOpened.disasterLocation) {
+               bizWindows.disasterLocation = $.layer({
+                                                   type: 2,   //0-4的选择,
+                                                   title: '灾害地点定位',
+                                                   maxmin: true,
+                                                   border: [5, 0.3, '#000'],
+                                                   closeBtn: [0, true],
+                                                   shade: [0],
+                                                   shadeClose: true,
+                                                   move: '.xubox_title',
+                                                   area: ['460px', '280px'],
+                                                   iframe: {
+                                                       src: 'disasterLocation.html'
+                                                   },
+                                                   close: function(index){
+                                                       ifWindowsOpened.disasterLocation = false;
+                                                   }
+                                               });
+               ifWindowsOpened.disasterLocation = true;
+           }
        },'灾害地点定位',map);
 
         var button2 = L.menuButton('fa-image',function(){
+            map.removeLayer(layers.provinceBound);
         },'应急资源分布',map);
 
         var button3 = L.menuButton('fa-info',function(){
+            map.removeLayer(layers.provinceBound);
         },'区域详细信息',map);
 
         var button4 = L.menuButton('fa-calculator',function(){
+            map.removeLayer(layers.provinceBound);
         },'物资需求分析',map);
 
         var button5 = L.menuButton('fa-phone',function(){
+            map.removeLayer(layers.provinceBound);
         },'应急调度',map);
 
         var button6 = L.menuButton('fa-road',function(){
+            map.removeLayer(layers.provinceBound);
         },'救援路径分析',map);
 
         var button7 = L.menuButton('fa-exchange',function(){
+            map.removeLayer(layers.provinceBound);
         },'态势标绘',map);
 
         var button8 = L.menuButton('fa-paint-brush',function(){
+            map.removeLayer(layers.provinceBound);
         },'自由标绘',map);
 
         var button9 = L.menuButton('fa-map-marker',function(){
+            map.removeLayer(layers.provinceBound);
         },'定位',map);
 
+        var button10 = L.menuButton('fa-bar-chart',function(){
+            map.addLayer(layers.provinceBound);
+        },'统计分析',map);
+
         var tileMapUrl = 'http://{s}.mapabc.com/mapabc/maptile?&x={x}&y={y}&z={z}';
-        //var tileMapUrl = 'http://map.ctrack.com.cn/UserMapSvr/UM_Maping?version=1.0&type=chart&x={x}&y={y}&z={z}'; //另一个在线底图
         var minZoom = 1, maxZoom = 14;
         var attribution = '&copy; <a href="http://192.168.1.211/jfzx/">交付中心</a>'
 
@@ -165,19 +185,13 @@
        }).addTo(map);
 
         <!--创建layerGroup-->
-       var provience = L.layerGroup(layers.provinceBound);
-
         var baseLayers = {
             "底图": layers.base,
             "卫星影像图": layers.satelliteBing,
             "卫星影像图+标注": layers.satelliteBingWithLables
         };
 
-        var vectorLayers = {
-            "行政区划": provience
-        }
-
-        L.control.layers(baseLayers,vectorLayers,{
+        L.control.layers(baseLayers,null,{
             collapsed: true,
             position: "bottomright"
         }).addTo(map);
@@ -201,7 +215,7 @@
 
         //初始化绘画控制，并将它增加到上面的可编辑层中
         var drawControl = new L.Control.Draw({
-            draw: false,
+            draw: true,
             edit:{
                 featureGroup : drawnItems
             }
